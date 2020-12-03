@@ -71,7 +71,7 @@ class Complex{
     friend std::ostream& operator << (std::ostream &output, Complex C);
 
     static double stringToDouble(std::string toConvert);
-    friend std::istream& operator >> (std::istream &input, Complex C);
+    friend std::istream& operator >> (std::istream &input, Complex &C);
 };
 
 #endif

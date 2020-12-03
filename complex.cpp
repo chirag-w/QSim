@@ -171,7 +171,7 @@ static double stringToDouble(std::string toConvert){
     return answer*invert;
 }
 
-std::istream& operator >> (std::istream &input, Complex C){   
+std::istream& operator >> (std::istream &input, Complex &C){   
     std::string numberAsString;
     getline(input, numberAsString);
     std::string noSpacesNumber = "";
