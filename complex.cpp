@@ -148,6 +148,7 @@ std::ostream& operator << (std::ostream &output, Complex C){
 
 static double stringToDouble(std::string toConvert){
     int invert = (toConvert[0] == '-'? -1: 1);
+    bool something = false;
     bool before = true;
     double answer = 0.0;
     double mul = 0.1;
@@ -160,14 +161,17 @@ static double stringToDouble(std::string toConvert){
             continue;
         }
         else if(before){
+            something = true;
             answer *= 10.0;
             answer += (double)(toConvert[i]-'0');
         }
         else{
+            something = true;
             answer += (double)(toConvert[i]-'0')*mul;
             mul/=10;
         }
     }
+    if(!something) answer = 1.0;
     return answer*invert;
 }
 
@@ -204,6 +208,8 @@ std::istream& operator >> (std::istream &input, Complex &C){
     for(int i=((noSpacesNumber[0]=='-'||noSpacesNumber[0]=='+')?1:0); i<noSpacesNumber.length(); i++)
     {
         if(noSpacesNumber[i] == '.' && ((times>0 && appeared==-1) || (times>1)))
+            return input;
+        else if(noSpacesNumber[i]=='.' && (i==0 || noSpacesNumber[i-1]>'9' || noSpacesNumber[i-1]<'0' || i==noSpacesNumber.size()-1 || noSpacesNumber[i+1]>'9' || noSpacesNumber[i+1]<'0'))
             return input;
         else if(noSpacesNumber[i]=='.')
             ++times;
