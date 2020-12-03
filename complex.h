@@ -22,51 +22,41 @@ The following operators are supported:
 #include<iostream>
 #include<cmath>
 
-class Complex
-{
+class Complex{
     double realPart, imaginaryPart;
     public:
 
-    Complex()
-    {
+    Complex(){
         realPart = imaginaryPart = 0.0;
     }
-    Complex(double real, double imaginary)
-    {
+    Complex(double real, double imaginary){
         realPart = real;
         imaginaryPart = imaginary;
     }
 
-    Complex operator + (Complex &other)
-    {
+    Complex operator + (Complex &other){
         return Complex(realPart + other.realPart, imaginaryPart + other.imaginaryPart);
     }
-    void operator += (Complex &other)
-    {
+    void operator += (Complex &other){
         *this = *this + other;
     }
 
-    Complex operator - (Complex &other)
-    {
+    Complex operator - (Complex &other){
         return Complex(realPart - other.realPart, imaginaryPart - other.imaginaryPart);
     }
-    void operator -= (Complex &other)
-    {
+    void operator -= (Complex &other){
         *this = *this - other;
     }
 
-    Complex operator * (Complex &other)
-    {
+    Complex operator * (Complex &other){
         return Complex(realPart*other.realPart - imaginaryPart*other.imaginaryPart,
                        realPart*other.imaginaryPart + imaginaryPart*other.realPart);
     }
-    void operator *= (Complex &other)
-    {
+    void operator *= (Complex &other){
         *this = *this * other;
     }
 
-    Complex operator / (Complex &other)
-    {
+    Complex operator / (Complex &other){
         Complex conjugate = !other;
         conjugate *= *this;
         double modSquare = other.mod() * other.mod();
@@ -74,63 +64,49 @@ class Complex
         conjugate.imaginaryPart /= modSquare;
         return conjugate;
     }
-    void operator /= (Complex &other)
-    {
+    void operator /= (Complex &other){
         *this = *this / other;
     }
 
-    Complex operator -()
-    {
+    Complex operator -(){
         return Complex(-realPart, -imaginaryPart);
     }
-    Complex operator !()
-    {
+    Complex operator !(){
         return Complex(realPart, -imaginaryPart);
     }
 
-    double real()
-    {
+    double real(){
         return realPart;
     }
-    double imag()
-    {
+    double imag(){
         return imaginaryPart;
     }
 
-    double mod()
-    {
+    double mod(){
         return sqrt(realPart*realPart + imaginaryPart*imaginaryPart);
     }
 
-    double arg()
-    {
-        if(realPart == 0.0)
-        {
+    double arg(){
+        if(realPart == 0.0){
             if(imaginaryPart == 0.0)
                 return 0.0;
             else
                 return imaginaryPart/fabs(imaginaryPart) * M_PI/2.0;
         }
         if(imaginaryPart == 0.0)
-        {
             return 0 + (realPart<0 ? M_PI : 0);
-        }
         double adjust = 0.0;
-        if(realPart < 0)
-        {
-            if(imaginaryPart < 0)
-            {
+        if(realPart < 0){
+            if(imaginaryPart < 0){
                 adjust = -M_PI;
             }
-            else
-            {
+            else{
                 adjust = M_PI;
             }
         }
         return atan(imaginaryPart/realPart) + adjust;
     }
-    double argInDegrees()
-    {
+    double argInDegrees(){
         return (this->arg())*(180.0/M_PI);
     }
 };
