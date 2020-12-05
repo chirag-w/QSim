@@ -34,6 +34,9 @@ class Complex{
     void setReal(double real);
     void setImag(double imag);
 
+    bool operator == (Complex other);
+    bool operator != (Complex other);
+
     Complex operator + (Complex other);
     void operator += (Complex other);
     Complex operator + (double other);

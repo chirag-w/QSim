@@ -1,4 +1,5 @@
 #include "complex.h"
+#define eps 1e-14
 
 
 Complex::Complex(){
@@ -18,6 +19,13 @@ void Complex::setReal(double real){
 }
 void Complex::setImag(double imag){
     imaginaryPart = imag;
+}
+
+bool Complex::operator == (Complex other){
+    return (fabs(other.realPart-realPart)<eps && fabs(other.imaginaryPart-imaginaryPart)<eps);
+}
+bool Complex::operator != (Complex other){
+    return !(*this == other);
 }
 
 
