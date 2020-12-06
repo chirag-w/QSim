@@ -15,6 +15,8 @@ class Gate {
     Matrix gate; 
     int num_qubits; 
 
+    friend class Qubits; 
+    
     bool checkUnitary(int num_qubits, Matrix gate); 
 
     public: 
