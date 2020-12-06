@@ -6,7 +6,7 @@ bool Qubits::checkMod(Matrix state) {
     int state_size = (int)state.dimensions().first;
     Complex mod_sum = *(new Complex(0)); 
     for(int i = 0; i < state_size; i++) {
-        mod_sum += state.getVal(i, 0).mod(); 
+        mod_sum += pow(state.getVal(i, 0).mod(), 2); 
     } 
     return mod_sum == *(new Complex(1)); 
 }

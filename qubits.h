@@ -1,3 +1,13 @@
+/*
+This header file provides functionality for representing the state of qubits using Qubits class. 
+
+The following functions are supported: 
+    - getNumQubits() - returns number of qubits represented by the object
+    - getQubitsList() - returns std::vector<int> of indices of qubits represented by the oject
+    - applyGate(Gate gate) - applies Gate to state Matrix of the object
+    - printState() - prints current state of the qubits
+*/
+
 #ifndef _QUBITS_H_
 #define _QUBITS_H_
 
