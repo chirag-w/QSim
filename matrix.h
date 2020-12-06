@@ -28,6 +28,7 @@ class Matrix {
     std::vector<std::vector<Complex>> matrix; 
 
     public: 
+    Matrix() = default; 
     Matrix(int rows, int columns); 
     Matrix(const std::vector<std::vector<Complex>>& matrix);
     Matrix(const std::vector<Complex>& array); 
