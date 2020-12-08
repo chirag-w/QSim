@@ -33,4 +33,6 @@ Gate H();
 Gate X();
 Gate Y();
 Gate Z();
+Gate CX();
+Gate U(double theta,double phi,double lambda);
 #endif

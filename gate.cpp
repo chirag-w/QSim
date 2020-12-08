@@ -19,11 +19,18 @@ bool Gate::checkUnitary(int num_qubits, Matrix gate) {
             }
         }
     }
+    
     /*
     std::cout<<is_identity<<'\n';
     for(int i = 0;i<gate_size;i++){
         for(int j = 0;j<gate_size;j++){
             std::cout<<result.getVal(i,j)<<' ';
+        }
+        std::cout<<'\n';
+    }
+    for(int i = 0;i<gate_size;i++){
+        for(int j = 0;j<gate_size;j++){
+            std::cout<<gate.getVal(i,j)<<' ';
         }
         std::cout<<'\n';
     }
@@ -124,4 +131,27 @@ Gate Z(){
     matrix[0][0] = v1;
     matrix[1][1] = -v1;
     return Gate(1,matrix);
+}
+Gate I(){
+    std::vector<std::vector<Complex>> matrix(2,std::vector<Complex>(2));
+    Complex v1(1);
+    matrix[0][0] = matrix[1][1] = 1;
+    return Gate(1,matrix);
+}
+Gate CX(){
+    std::vector<std::vector<Complex>> matrix(4,std::vector<Complex>(4));
+    Complex v1(1);
+    matrix[0][0] = matrix[1][1] = matrix[2][3] = matrix[3][2] = v1;
+    return Gate(2,matrix);
+}
+
+Gate U(double theta,double phi,double lambda){
+    std::vector<std::vector<Complex>> matrix(2,std::vector<Complex>(2));
+    Complex Cos(cos(theta/2)),Sin(sin(theta/2)),Phi(cos(phi),sin(phi)),Lambda(cos(lambda),sin(lambda));
+    matrix[0][0] = Cos;
+    matrix[0][1] = -Lambda *Sin;
+    matrix[1][0] = Phi * Sin;
+    matrix[1][1] = Phi * Lambda * Cos;
+    return Gate(1,matrix); 
+
 }

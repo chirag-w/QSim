@@ -4,13 +4,7 @@ int main(){
     std::vector<int> qubit_list(1);
     Qubits qc(qubit_list);
     qc.printState();
-    std::cout<<'\n';
-    qc.applyGate(H());
-    qc.printState();
-    std::cout<<'\n';
-    qc.applyGate(Z());
-    qc.printState();
-    qc.applyGate(Z());
-    std::cout<<'\n';
+    qc.applyGate(X());
+    qc.applyGate(U(M_PI/2,0,0));
     qc.printState();
 }
