@@ -18,11 +18,12 @@ The following operators are supported (both with other complex numbers and real 
 
 #ifndef _COMPLEX_NUMBERS_H_
 #define _COMPLEX_NUMBERS_H_
-
-#include<iostream>
 #include<cmath>
+#include<iostream>
 #include<string>
-
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 class Complex{
     double realPart, imaginaryPart;
     public:

@@ -20,6 +20,7 @@ class Gate {
     bool checkUnitary(int num_qubits, Matrix gate); 
 
     public: 
+    Gate() = default;
     Gate(int num_qubits); 
     Gate(int num_qubits, Matrix gate);  
     Gate(int num_qubits, std::vector<std::vector<Complex>> gate); 
@@ -28,4 +29,8 @@ class Gate {
     void printGate(); 
 }; 
 
+Gate H();
+Gate X();
+Gate Y();
+Gate Z();
 #endif
