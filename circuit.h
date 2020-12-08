@@ -8,21 +8,22 @@
 
 #include <vector>
 
-class Circuit { 
-    Qubits qlist;
-	std::vector<Gate> gate_list; 
-     
+class Circuit
+{
+    Qubits qubits;
+    std::vector<Gate> gate_list;
+    int number_of_qubits;
 
-    public: 
+public:
     Circuit() = default;
-    Circuit(std::vector<int> qubitlist); 
-    Circuit(int number_of_qubits); 
+    Circuit(std::vector<int> qubit_list);
+    Circuit(int number_of_qubits);
 
-    void measure(); 
-    void drawCircuit(); 
-    void apply(Gate gate);  
+    void measure();
+    void drawCircuit();
+    void apply(Gate gate);
     void clear();
-    void measureAll();
-}; 
+    std::vector<int> measureAll();
+};
 
 #endif
