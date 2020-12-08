@@ -25,6 +25,7 @@ class Qubits {
     bool checkMod(Matrix state); 
 
     public: 
+    Qubits() = default;
     Qubits(std::vector<int> qubits_list); 
     Qubits(std::vector<int> qubits_list, Matrix state); 
     Qubits(std::vector<int> qubits_list, std::vector<Complex> state_vector); 
