@@ -6,6 +6,7 @@
 Circuit::Circuit(std::vector<int> qubit_list)
 {
 	this->qubits = *(new Qubits(qubit_list));
+	this->number_of_qubits = qubit_list.size();
 }
 
 Circuit::Circuit(int number_of_qubits)

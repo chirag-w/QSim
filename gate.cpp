@@ -1,25 +1,33 @@
 #include "gate.h"
 
 bool Gate::checkUnitary(int num_qubits, Matrix gate) {
-    Matrix result = gate * gate.transpose(); 
+    Matrix result = gate * !gate.transpose(); 
     int gate_size = (1 << num_qubits); 
     bool is_identity = true; 
     for(int i = 0; i < gate_size; i++) {
         for(int j = 0; j < gate_size; j++) {
             if(i == j) {
-                if(gate.getVal(i, j) != *(new Complex(1))) {
+                if(result.getVal(i, j) != *(new Complex(1))) {
                     is_identity = false; 
                     break; 
                 }
             } else {
-                if(gate.getVal(i, j) != *(new Complex(0))) {
+                if(result.getVal(i, j) != *(new Complex(0))) {
                     is_identity = false; 
                     break; 
                 }
             }
         }
     }
-
+    /*
+    std::cout<<is_identity<<'\n';
+    for(int i = 0;i<gate_size;i++){
+        for(int j = 0;j<gate_size;j++){
+            std::cout<<result.getVal(i,j)<<' ';
+        }
+        std::cout<<'\n';
+    }
+    */
     return is_identity; 
 }
 
@@ -75,4 +83,45 @@ void Gate::printGate() {
         }
         std::cout << "\n"; 
     }
+}
+Gate H(){
+    std::vector<std::vector<Complex>> matrix(2);
+    matrix[0] = *(new std::vector<Complex>(2));
+    matrix[1] = *(new std::vector<Complex>(2));
+    double val1 = 1/sqrt(2);
+    Complex v1(val1),v2(-val1);
+    matrix[0][0] = matrix[0][1] = matrix[1][0] = v1;
+    matrix[1][1] = v2;
+    return Gate(1,matrix);
+}
+
+Gate X(){
+    std::vector<std::vector<Complex>> matrix(2);
+    matrix[0] = *(new std::vector<Complex>(2));
+    matrix[1] = *(new std::vector<Complex>(2));
+    Complex v1(1),v2(0);
+    matrix[0][0] = matrix[1][1] = v2;
+    matrix[0][1] = matrix[1][0] = v1;
+    return Gate(1,matrix);
+}
+
+Gate Y(){
+    std::vector<std::vector<Complex>> matrix(2);
+    matrix[0] = *(new std::vector<Complex>(2));
+    matrix[1] = *(new std::vector<Complex>(2));
+    Complex v1(0,1),v2(0);
+    matrix[0][0] = matrix[1][1] = v2;
+    matrix[0][1] = -v1;
+    matrix[1][0] = v1;
+    return Gate(1,matrix);
+}
+Gate Z(){
+    std::vector<std::vector<Complex>> matrix(2);
+    matrix[0] = *(new std::vector<Complex>(2));
+    matrix[1] = *(new std::vector<Complex>(2));
+    Complex v1(1),v2(0);
+    matrix[1][0] = matrix[0][1] =  v2;
+    matrix[0][0] = v1;
+    matrix[1][1] = -v1;
+    return Gate(1,matrix);
 }
