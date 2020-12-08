@@ -1,21 +1,25 @@
 #include "circuit.h"
 
-#include <iostream> 
+#include <iostream>
 #include <vector>
 
-Circuit::Circuit(std::vector<int> qubitlist) {
-    this->qlist = *(new Qubits(qubitlist));
+Circuit::Circuit(std::vector<int> qubit_list)
+{
+	this->qubits = *(new Qubits(qubit_list));
 }
 
-Circuit::Circuit(int number_of_qubits) {
-	std::vector<int> qlist;
-	for(int i=0;i<number_of_qubits;i++)
+Circuit::Circuit(int number_of_qubits)
+{
+	std::vector<int> qubits;
+	for (int i = 0; i < number_of_qubits; i++)
 	{
-		qlist.push_back(i);
+		qubits.push_back(i);
 	}
-	this->qlist = *(new Qubits(qlist));
+	this->qubits = *(new Qubits(qubits));
+	this->number_of_qubits = number_of_qubits;
 }
 
-void Circuit::clear() {
-    this->gate_list.clear();
+void Circuit::clear()
+{
+	this->gate_list.clear();
 }
