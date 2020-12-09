@@ -24,7 +24,7 @@ class Gate {
     Gate(int num_qubits); 
     Gate(int num_qubits, Matrix gate);  
     Gate(int num_qubits, std::vector<std::vector<Complex>> gate); 
-
+    Matrix getMatrix();
     int getNumQubits(); 
     void printGate(); 
 }; 
@@ -33,4 +33,6 @@ Gate H();
 Gate X();
 Gate Y();
 Gate Z();
+Gate CX();
+Gate U(double theta,double phi,double lambda);
 #endif

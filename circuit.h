@@ -11,9 +11,11 @@
 class Circuit
 {
     Qubits qubits;
-    std::vector<Gate> gate_list;
+    std::vector<std::pair<Gate,std::vector<int>>> gate_list;
+    std::vector<std::pair<Gate,std::vector<int>>> physical_gate_list;
     int number_of_qubits;
-
+    void add(Gate gate,int q0);
+    void add(Gate gate,int q0,int q1);
 public:
     Circuit() = default;
     Circuit(std::vector<int> qubit_list);
@@ -21,9 +23,10 @@ public:
 
     void measure();
     void drawCircuit();
-    void apply(Gate gate);
+    void apply(Gate gate, std::vector<int> qubits_list);
     void clear();
     std::vector<int> measureAll();
+    void printStateVector();
 };
 
 #endif

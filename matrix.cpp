@@ -6,6 +6,17 @@ Matrix::Matrix(int rows, int columns) {
     this->matrix = std::vector<std::vector<Complex>>(rows, std::vector<Complex>(columns));
 }
 
+Matrix::Matrix(int rows, int columns,bool identity) {
+    this->rows = rows; 
+    this->columns = columns; 
+    this->matrix = std::vector<std::vector<Complex>>(rows, std::vector<Complex>(columns));
+    if(identity && rows==columns){
+        for(int i = 0;i<rows;i++){
+            matrix.at(i).at(i) = *(new Complex(1));
+        }
+    }
+}
+
 Matrix::Matrix(const std::vector<std::vector<Complex>>& matrix) {
     this->rows = (int)matrix.size(); 
     this->columns = (this->rows == 0 ? 0 : (int)(matrix.at(0).size()));

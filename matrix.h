@@ -30,6 +30,7 @@ class Matrix {
     public: 
     Matrix() = default; 
     Matrix(int rows, int columns); 
+    Matrix(int rows, int columns,bool identity);
     Matrix(const std::vector<std::vector<Complex>>& matrix);
     Matrix(const std::vector<Complex>& array); 
 
