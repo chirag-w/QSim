@@ -1,10 +1,12 @@
 #include "circuit.h"
-#include "qubits.h"
 int main(){
-    std::vector<int> qubit_list(1);
-    Qubits qc(qubit_list);
-    qc.printState();
-    qc.applyGate(X());
-    qc.applyGate(U(M_PI/2,0,0));
-    qc.printState();
+    Circuit qc(2);
+    std::cout<<"Original state:\n";
+    qc.printStateVector();
+    qc.apply(H(),{0});
+    //std::cout<<"Applied Hadamard"<<std::endl;
+    //qc.printStateVector();
+    qc.apply(CX(),{0,1});
+    std::cout<<"(Hopefully)EPR Pair:\n";
+    qc.printStateVector();
 }

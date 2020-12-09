@@ -91,6 +91,9 @@ void Gate::printGate() {
         std::cout << "\n"; 
     }
 }
+Matrix Gate::getMatrix(){
+    return gate;
+}
 Gate H(){
     std::vector<std::vector<Complex>> matrix(2);
     matrix[0] = *(new std::vector<Complex>(2));
