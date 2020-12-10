@@ -202,7 +202,7 @@ int Circuit::measure(int qubit)
 	double prob_0 = 0;
 	for (int j = 0; j < pow(2, qubits.num_qubits); j++)
 	{
-		if (((j >> qubit) & 1) == 0)
+		if (((j >> (qubits.num_qubits - qubit - 1)) & 1) == 0)
 		{
 			prob_0 += pow(qubits.state.getVal(j, 0).mod(), 2);
 		}
@@ -212,7 +212,7 @@ int Circuit::measure(int qubit)
 	{
 		if (random < prob_0)
 		{
-			if (((j >> qubit) & 1) == 0)
+			if (((j >> (qubits.num_qubits-qubit-1)) & 1) == 0)
 			{
 				qubits.state.setVal(j, 0, qubits.state.getVal(j, 0) / *(new Complex(sqrt(prob_0))));
 			}
@@ -223,7 +223,7 @@ int Circuit::measure(int qubit)
 		}
 		else
 		{
-			if (((j >> qubit) & 1) == 1)
+			if (((j >> (qubits.num_qubits - qubit-1)) & 1) == 1)
 			{
 				qubits.state.setVal(j, 0, qubits.state.getVal(j, 0) / *(new Complex(sqrt(1 - prob_0))));
 			}
