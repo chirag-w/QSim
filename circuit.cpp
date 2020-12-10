@@ -85,7 +85,7 @@ void Circuit::add(Gate gate,int q0,int q1){
 	//physical_gate_list.push_back({gate,{q0,q1}});
 	qubits.applyGate(Gate (number_of_qubits,m0.tensorProduct(M).tensorProduct(m4)));
 }
-bool inContact(int q0,int q1){
+bool Circuit::inContact(int q0,int q1){
 switch(q0){
 		case 0: return (q1 == 1 || q1 == 2 || q1 == 10);
 		case 1: return (q1 == 0 || q1 == 2 || q1 == 3 || q1 == 4 || q1 == 10);
@@ -120,6 +120,7 @@ std::vector<int> Circuit::swapTargets(int q0,int q1){
 	return swapTo;
 }
 void Circuit::SWAP(int q0,int q1){
+	//std::cout<<"SWAPPED "<<q0<<" "<<q1<<'\n';
 	physical_gate_list.push_back({CX(),{q0,q1}});
 	physical_gate_list.push_back({CX(),{q1,q0}});
 	physical_gate_list.push_back({CX(),{q0,q1}});
@@ -139,17 +140,32 @@ void Circuit::apply(Gate gate,std::vector<int> qubits_list){
 		if(swapTo.size()==1){
 			SWAP(q0,swapTo[0]);
 			physical_gate_list.push_back({gate,{swapTo[0],q1}});
+			/*
+			std::cout<<"Applied \n";
+			gate.printGate();
+			std::cout<<"To "<<swapTo[0]<<' '<<q1<<'\n';
+			*/
 			SWAP(q0,swapTo[0]);
 		}
 		else if(swapTo.size()==2){
 			SWAP(q0,swapTo[0]);
 			SWAP(q1,swapTo[1]);
 			physical_gate_list.push_back({gate,{swapTo[0],swapTo[1]}});
+			/*
+			std::cout<<"Applied \n";
+			gate.printGate();
+			std::cout<<"To "<<swapTo[0]<<' '<<swapTo[1]<<'\n';
+			*/
 			SWAP(q1,swapTo[1]);
 			SWAP(q0,swapTo[0]);
 		}
 		else{
 			physical_gate_list.push_back({gate,{q0,q1}});
+			/*
+			std::cout<<"Applied \n";
+			gate.printGate();
+			std::cout<<"To "<<q0<<' '<<q1<<'\n';
+			*/
 		}
 		add(gate,q0,q1);
 	}
