@@ -24,7 +24,8 @@ public:
     //Circuit(std::vector<int> qubit_list);
     Circuit(int number_of_qubits);
 
-    void measure();
+    std::vector<int> measure(std::vector<int> qubits_list);
+    int measure(int qubit);
     void drawCircuit();
     void apply(Gate gate, std::vector<int> qubits_list);
     void clear();
