@@ -17,24 +17,25 @@ The following functions are supported:
 
 #include <vector>
 
-class Qubits {
-    int num_qubits; 
-    std::vector<int> qubits_list; 
-    Matrix state; 
+class Qubits
+{
+    int num_qubits;
+    std::vector<int> qubits_list;
+    Matrix state;
 
-    bool checkMod(Matrix state); 
+    bool checkMod(Matrix state);
 
-    public: 
+public:
     Qubits() = default;
-    Qubits(std::vector<int> qubits_list); 
-    Qubits(std::vector<int> qubits_list, Matrix state); 
-    Qubits(std::vector<int> qubits_list, std::vector<Complex> state_vector); 
+    Qubits(std::vector<int> qubits_list);
+    Qubits(std::vector<int> qubits_list, Matrix state);
+    Qubits(std::vector<int> qubits_list, std::vector<Complex> state_vector);
 
-    int getNumQubits(); 
-    std::vector<int> getQubitsList(); 
-    void applyGate(Gate gate); 
-    void printState(); 
-    
-}; 
+    int getNumQubits();
+    std::vector<int> getQubitsList();
+    void applyGate(Gate gate);
+    void printState();
+    friend class Circuit;
+};
 
 #endif
