@@ -158,3 +158,25 @@ Gate U(double theta,double phi,double lambda){
     return Gate(1,matrix); 
 
 }
+
+Gate Controlled(Gate gate){
+    Matrix m;
+    try{
+        m = gate.getMatrix();
+        if(m.dimensions()!= std::make_pair(2,2)){
+            throw(1);
+        }
+    }
+    catch(int code){
+        std::cerr<<"Controlled gate can only be returned for a single qubit gate\n";
+    }
+    Matrix m2(4,4);
+    Complex one(1);
+    m2.setVal(0,0,one);
+    m2.setVal(1,1,one);
+    m2.setVal(2,2,m.getVal(0,0));
+    m2.setVal(2,3,m.getVal(0,1));
+    m2.setVal(3,2,m.getVal(1,0));
+    m2.setVal(3,3,m.getVal(1,1));
+    return Gate(2,m2);
+}

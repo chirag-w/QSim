@@ -26,6 +26,10 @@ Circuit::Circuit(int number_of_qubits)
 		number_of_physical_qubits++;
 	if(number_of_qubits>7)
 		number_of_physical_qubits++;
+	if(number_of_qubits > 10){
+		std::cerr<<"At most 10 qubits allowed\n";
+		exit(1);
+	}
 	std::vector<int> qubits;
 	for (int i = 0; i < number_of_qubits; i++)
 	{
@@ -191,12 +195,58 @@ void Circuit::apply(Gate gate,std::vector<int> qubits_list){
 	}
 
 }
-
+void Circuit::apply(Gate gate,int q0){
+	if(gate.getNumQubits()!=1){
+		std::cerr<<"Not a 1-qubit gate\n";
+		return;
+	}
+	std::vector<int> qubits_list(1,q0);
+	gate_list.push_back({gate,qubits_list});
+	add(gate,q0);
+}
+void Circuit::apply(Gate gate,int q0,int q1){
+	std::vector<int> qubits_list(2);
+	qubits_list[0] = q0,qubits_list[1] = q1;
+	std::vector<int> swapTo = swapTargets(q0,q1);
+	if(swapTo.size()==1){
+		SWAP(q0,swapTo[0]);
+		physical_gate_list.push_back({gate,{swapTo[0],q1}});
+		/*
+		std::cout<<"Applied \n";
+		gate.printGate();
+		std::cout<<"To "<<swapTo[0]<<' '<<q1<<'\n';
+		*/
+		SWAP(q0,swapTo[0]);
+	}
+	else if(swapTo.size()==2){
+		SWAP(q0,swapTo[0]);
+		SWAP(q1,swapTo[1]);
+		physical_gate_list.push_back({gate,{swapTo[0],swapTo[1]}});
+		/*
+		std::cout<<"Applied \n";
+		gate.printGate();
+		std::cout<<"To "<<swapTo[0]<<' '<<swapTo[1]<<'\n';
+		*/
+		SWAP(q1,swapTo[1]);
+		SWAP(q0,swapTo[0]);
+	}
+	else{
+		physical_gate_list.push_back({gate,{q0,q1}});
+		/*
+		std::cout<<"Applied \n";
+		gate.printGate();
+		std::cout<<"To "<<q0<<' '<<q1<<'\n';
+		*/
+	}
+	add(gate,q0,q1);
+}
 void Circuit::printStateVector()
 {
 	qubits.printState();
 }
-
+int Circuit::getNumQubits(){
+	return number_of_qubits;
+}
 int Circuit::measure(int qubit)
 {
 	double prob_0 = 0;
