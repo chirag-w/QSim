@@ -35,4 +35,5 @@ Gate Y();
 Gate Z();
 Gate CX();
 Gate U(double theta,double phi,double lambda);
+Gate Controlled(Gate gate);
 #endif

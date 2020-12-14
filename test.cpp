@@ -1,20 +1,29 @@
 #include "circuit.h"
+#include<chrono>
+using namespace std::chrono;
+
 int main()
 {
-    Circuit qc(2);
-    std::cout << "Original state:\n";
-    qc.printStateVector();
+    Circuit qc(4);
     qc.apply(H(), {0});
-    std::cout<<"Applied Hadamard"<<std::endl;
-    qc.printStateVector();
-    qc.apply(CX(), {0, 1});
-    std::cout << "(Hopefully)EPR Pair:\n";
-    qc.printStateVector();
+    qc.apply(H(), {1});
+    qc.apply(H(), {2});
+    qc.apply(H(), {3});
+    //qc.printStateVector();
     // measurement test
-    std::vector<int> a = qc.measureAll();
-    for (int i = 0; i < a.size(); i++)
+    std::cout<<"Starting measurement\n";
+    auto start = high_resolution_clock::now();
+    std::vector<int> outcomes = qc.measureAll();
+    std::cout<<"Measurement outcome:\n";
+    for (int a:outcomes)
     {
-        std::cout << a.at(i);
+        std::cout << a;
     }
+    std::cout<<'\n';
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(stop - start);
+
+    std::cout<<"Measurement time: "<<duration.count()<<'\n';
+    std::cout<<"After measurement\n";
     qc.printStateVector();
 }
