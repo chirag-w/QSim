@@ -136,14 +136,54 @@ Matrix Matrix::operator * (Matrix other) {
         if(this->dimensions().second != other.dimensions().first) {
             throw(1); 
         }
-        Matrix result = *(new Matrix(this->rows, other.columns)); 
+
+        std::vector<std::vector<double>> A(this->rows, std::vector<double>(this->columns));
+        std::vector<std::vector<double>> B(this->rows, std::vector<double>(this->columns));  
+        std::vector<std::vector<double>> C_T(other.columns, std::vector<double>(other.rows));
+        std::vector<std::vector<double>> D_T(other.columns, std::vector<double>(other.rows));
+
+        std::vector<std::vector<double>> real_part(this->rows, std::vector<double>(other.columns));
+        std::vector<std::vector<double>> imaginary_part(this->rows, std::vector<double>(other.columns));
+        
+        for(int i = 0; i < this->rows; i++) {
+            for(int j = 0; j < this->columns; j++) {
+                A[i][j] = this->matrix.at(i).at(j).real();
+                B[i][j] = this->matrix.at(i).at(j).imag(); 
+            }
+        }
+
+        for(int i = 0; i < other.rows; i++) {
+            for(int j = 0; j < other.columns; j++) {
+                C_T[j][i] = other.matrix.at(i).at(j).real();
+                D_T[j][i] = other.matrix.at(i).at(j).imag(); 
+            }
+        }
+
         for(int i = 0; i < this->rows; i++) {
             for(int k = 0; k < other.columns; k++) {
+                #pragma omp simd
                 for(int j = 0; j < this->columns; j++) {
-                    result.matrix.at(i).at(k) += this->matrix.at(i).at(j) * other.matrix.at(j).at(k); 
+                    real_part[i][k] += A[i][j] * C_T[k][j] - B[i][j] * D_T[k][j];
+                    imaginary_part[i][k] += A[i][j] * D_T[k][j] + B[i][j] * C_T[k][j];  
                 }
             }
         }
+        
+
+        Matrix result = *(new Matrix(this->rows, other.columns)); 
+        for(int i = 0; i < this->rows; i++) {
+            for(int j = 0; j < other.columns; j++) {
+                result.matrix.at(i).at(j) = Complex(real_part[i][j], imaginary_part[i][j]); 
+            }
+        }
+        // for(int i = 0; i < this->rows; i++) {
+        //     for(int k = 0; k < other.columns; k++) {
+        //         #pragma omp simd
+        //         for(int j = 0; j < this->columns; j++) {
+        //             result.matrix.at(i).at(k) += this->matrix.at(i).at(j) * other.matrix.at(j).at(k); 
+        //         }
+        //     }
+        // }
 
         return result; 
     }
