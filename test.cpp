@@ -4,20 +4,20 @@ using namespace std::chrono;
 
 int main()
 {
-    Circuit qc(4);
+    Circuit qc(10);
 
     auto start = high_resolution_clock::now();
 
     qc.apply(H(), {0});
 
     auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<milliseconds>(stop - start);
-    std::cout<<"Gate application time: "<< duration.count() << " miliseconds" << '\n';
+    auto duration = duration_cast<microseconds>(stop - start);
+    std::cout<<"Gate application time: "<< duration.count() << " microseconds" << '\n';
 
     qc.apply(H(), {1});
     qc.apply(H(), {2});
     qc.apply(H(), {3});
-    //qc.printStateVector();
+    // qc.printStateVector();
     // measurement test
     std::cout<<"Starting measurement\n";
     start = high_resolution_clock::now();
@@ -29,9 +29,9 @@ int main()
     }
     std::cout<<'\n';
     stop = high_resolution_clock::now();
-    duration = duration_cast<milliseconds>(stop - start);
+    duration = duration_cast<microseconds>(stop - start);
 
     std::cout<<"Measurement time: "<<duration.count()<<'\n';
     std::cout<<"After measurement\n";
-    qc.printStateVector();
+    // qc.printStateVector();
 }

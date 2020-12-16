@@ -1,4 +1,5 @@
 #include "matrix.h"
+#include<thread>
 
 Matrix::Matrix(int rows, int columns) {
     this->rows = rows; 
@@ -159,15 +160,45 @@ Matrix Matrix::operator * (Matrix other) {
             }
         }
 
-        for(int i = 0; i < this->rows; i++) {
-            for(int k = 0; k < other.columns; k++) {
-                #pragma omp simd
-                for(int j = 0; j < this->columns; j++) {
-                    real_part[i][k] += A[i][j] * C_T[k][j] - B[i][j] * D_T[k][j];
-                    imaginary_part[i][k] += A[i][j] * D_T[k][j] + B[i][j] * C_T[k][j];  
+        int THREADS = 4;
+        int SIZE = this->rows;
+
+        auto multiply = [this, other, C_T, D_T, A, B](int start, int end, std::vector<std::vector<double>> &real_part,  std::vector<std::vector<double>> &imaginary_part) {
+            for(int i=start; i<end; i++) {
+                for(int k = 0; k < other.columns; k++) {
+                    #pragma omp simd
+                    for(int j = 0; j < this->columns; j++) {
+                        real_part[i][k] += A[i][j] * C_T[k][j] - B[i][j] * D_T[k][j];
+                        imaginary_part[i][k] += A[i][j] * D_T[k][j] + B[i][j] * C_T[k][j]; 
+
+                    }
                 }
             }
+        };
+
+        std::thread threads[THREADS+1];
+        for(int i=0; i<THREADS; ++i){
+            threads[i] = std::thread(multiply, i*(SIZE/THREADS), (i+1)*(SIZE/THREADS), std::ref(real_part), std::ref(imaginary_part));
         }
+        threads[THREADS] = std::thread(multiply, THREADS*(SIZE/THREADS), SIZE, std::ref(real_part), std::ref(imaginary_part));
+        for(int i=0; i<=THREADS; i++) {
+            threads[i].join();
+        }
+
+
+
+
+
+
+        // for(int i = 0; i < this->rows; i++) {
+        //     for(int k = 0; k < other.columns; k++) {
+        //         #pragma omp simd
+        //         for(int j = 0; j < this->columns; j++) {
+        //             real_part[i][k] += A[i][j] * C_T[k][j] - B[i][j] * D_T[k][j];
+        //             imaginary_part[i][k] += A[i][j] * D_T[k][j] + B[i][j] * C_T[k][j];  
+        //         }
+        //     }
+        // }
         
 
         Matrix result = *(new Matrix(this->rows, other.columns)); 
