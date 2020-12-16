@@ -1,4 +1,9 @@
 #include "matrix.h"
+#ifdef __AVX__
+  #include <immintrin.h>
+#else
+  #warning AVX is not available. Code will not compile!
+#endif
 
 Matrix::Matrix(int rows, int columns) {
     this->rows = rows; 
@@ -136,54 +141,42 @@ Matrix Matrix::operator * (Matrix other) {
         if(this->dimensions().second != other.dimensions().first) {
             throw(1); 
         }
+        Matrix result = *(new Matrix(this->rows, other.columns)); 
+        int avx_cols = other.columns - (other.columns % 4);
+        if(avx_cols > 0) { 
+            double result_real[this->rows][avx_cols] = {};
+            double result_imag[this->rows][avx_cols] = {}; 
 
-        std::vector<std::vector<double>> A(this->rows, std::vector<double>(this->columns));
-        std::vector<std::vector<double>> B(this->rows, std::vector<double>(this->columns));  
-        std::vector<std::vector<double>> C_T(other.columns, std::vector<double>(other.rows));
-        std::vector<std::vector<double>> D_T(other.columns, std::vector<double>(other.rows));
+            for(int i = 0; i < this->rows; i++) { 
+                for(int k = 0; k < avx_cols/4; k++) {
+                    __m256d Z_real = _mm256_set1_pd(0.0);
+                    __m256d Z_imag = _mm256_set1_pd(0.0);
+                    for(int j = 0; j < this->columns; j++) {
+                        __m256d X_real = _mm256_set1_pd(this->matrix.at(i).at(j).real()); 
+                        __m256d X_imag = _mm256_set1_pd(this->matrix.at(i).at(j).imag()); 
+                        __m256d Y_real = _mm256_set_pd(other.matrix.at(j).at(4*k+3).real(), other.matrix.at(j).at(4*k+2).real(), other.matrix.at(j).at(4*k+1).real(), other.matrix.at(j).at(4*k).real()); 
+                        __m256d Y_imag = _mm256_set_pd(other.matrix.at(j).at(4*k+3).imag(), other.matrix.at(j).at(4*k+2).imag(), other.matrix.at(j).at(4*k+1).imag(), other.matrix.at(j).at(4*k).imag()); 
+                        Z_real = _mm256_add_pd(Z_real, _mm256_sub_pd(_mm256_mul_pd(X_real, Y_real), _mm256_mul_pd(X_imag, Y_imag)));
+                        Z_imag = _mm256_add_pd(Z_imag, _mm256_add_pd(_mm256_mul_pd(X_real, Y_imag), _mm256_mul_pd(X_imag, Y_real))); 
+                    }
+                    _mm256_storeu_pd(&(result_real[i][4*k]), Z_real); 
+                    _mm256_storeu_pd(&(result_imag[i][4*k]), Z_imag); 
+                }
+            } 
 
-        std::vector<std::vector<double>> real_part(this->rows, std::vector<double>(other.columns));
-        std::vector<std::vector<double>> imaginary_part(this->rows, std::vector<double>(other.columns));
-        
-        for(int i = 0; i < this->rows; i++) {
-            for(int j = 0; j < this->columns; j++) {
-                A[i][j] = this->matrix.at(i).at(j).real();
-                B[i][j] = this->matrix.at(i).at(j).imag(); 
-            }
-        }
-
-        for(int i = 0; i < other.rows; i++) {
-            for(int j = 0; j < other.columns; j++) {
-                C_T[j][i] = other.matrix.at(i).at(j).real();
-                D_T[j][i] = other.matrix.at(i).at(j).imag(); 
-            }
-        }
-
-        for(int i = 0; i < this->rows; i++) {
-            for(int k = 0; k < other.columns; k++) {
-                #pragma omp simd
-                for(int j = 0; j < this->columns; j++) {
-                    real_part[i][k] += A[i][j] * C_T[k][j] - B[i][j] * D_T[k][j];
-                    imaginary_part[i][k] += A[i][j] * D_T[k][j] + B[i][j] * C_T[k][j];  
+            for(int i = 0; i < this->rows; i++) {
+                for(int j = 0; j < avx_cols; j++) {
+                    result.matrix.at(i).at(j) = Complex(result_real[i][j], result_imag[i][j]); 
                 }
             }
         }
-        
-
-        Matrix result = *(new Matrix(this->rows, other.columns)); 
         for(int i = 0; i < this->rows; i++) {
-            for(int j = 0; j < other.columns; j++) {
-                result.matrix.at(i).at(j) = Complex(real_part[i][j], imaginary_part[i][j]); 
+            for(int k = avx_cols; k < other.columns; k++) {
+                for(int j = 0; j < this->columns; j++) {
+                    result.matrix.at(i).at(k) += this->matrix.at(i).at(j) * other.matrix.at(j).at(k); 
+                }
             }
         }
-        // for(int i = 0; i < this->rows; i++) {
-        //     for(int k = 0; k < other.columns; k++) {
-        //         #pragma omp simd
-        //         for(int j = 0; j < this->columns; j++) {
-        //             result.matrix.at(i).at(k) += this->matrix.at(i).at(j) * other.matrix.at(j).at(k); 
-        //         }
-        //     }
-        // }
 
         return result; 
     }
