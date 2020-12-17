@@ -18,6 +18,8 @@ void QFT(Circuit &qc,int n){
 
     for(int i = 0;i<n/2;i++){
         qc.apply(CX(),i,n-i-1);
+        qc.apply(CX(),n-i-1,i);
+        qc.apply(CX(),i,n-i-1);
     }
 }
 
@@ -27,8 +29,10 @@ int main(){
     cin>>n;
     Circuit qc(n);
     //initialise in arbitrary state for testing
+    /*
     for(int i = 0;i<n;i++)
-        qc.apply(X(),i);
+        qc.apply(H(),i);
+    */
     //verify state
     qc.printStateVector();
     std::cout<<endl;
