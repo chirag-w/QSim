@@ -1,3 +1,8 @@
+#ifdef __AVX__ 
+    #include <immintrin.h>
+#else
+    #warning AVX is not available. Code will not compile properly
+#endif
 #include "matrix.h"
 #include<thread>
 
@@ -166,11 +171,36 @@ Matrix Matrix::operator * (Matrix other) {
         auto multiply = [this, other, C_T, D_T, A, B](int start, int end, std::vector<std::vector<double>> &real_part,  std::vector<std::vector<double>> &imaginary_part) {
             for(int i=start; i<end; i++) {
                 for(int k = 0; k < other.columns; k++) {
-                    #pragma omp simd
-                    for(int j = 0; j < this->columns; j++) {
+                    int j = 0; 
+                    for(; j+3 < this->columns; j += 4) {
+                        __m256d A_avx = _mm256_set_pd(A[i][j+3], A[i][j+2], A[i][j+1], A[i][j]);
+                        __m256d B_avx = _mm256_set_pd(B[i][j+3], B[i][j+2], B[i][j+1], B[i][j]); 
+                        __m256d C_T_avx = _mm256_set_pd(C_T[k][j+3], C_T[k][j+2], C_T[k][j+1], C_T[k][j]);
+                        __m256d D_T_avx = _mm256_set_pd(D_T[k][j+3], D_T[k][j+2], D_T[k][j+1], D_T[k][j]); 
+                        
+                        __m256d to_add_real = _mm256_sub_pd(_mm256_mul_pd(A_avx, C_T_avx), _mm256_mul_pd(B_avx, D_T_avx));
+                        __m256d to_add_imag = _mm256_add_pd(_mm256_mul_pd(A_avx, D_T_avx), _mm256_mul_pd(B_avx, C_T_avx));
+
+                        __m128d to_add_real_low  = _mm256_castpd256_pd128(to_add_real);
+                        __m128d to_add_real_high = _mm256_extractf128_pd(to_add_real, 1); 
+                        to_add_real_low  = _mm_add_pd(to_add_real_low, to_add_real_high);    
+                        __m128d real_high64 = _mm_unpackhi_pd(to_add_real_low, to_add_real_low);
+                        real_part[i][k] +=  _mm_cvtsd_f64(_mm_add_sd(to_add_real_low, real_high64));
+                         
+                        // real_part[i][k] += A[i][j] * C_T[k][j] - B[i][j] * D_T[k][j];
+
+                        __m128d to_add_imag_low  = _mm256_castpd256_pd128(to_add_imag);
+                        __m128d to_add_imag_high = _mm256_extractf128_pd(to_add_imag, 1); 
+                        to_add_imag_low  = _mm_add_pd(to_add_imag_low, to_add_imag_high);    
+                        __m128d imag_high64 = _mm_unpackhi_pd(to_add_imag_low, to_add_imag_low);
+                        imaginary_part[i][k] +=  _mm_cvtsd_f64(_mm_add_sd(to_add_imag_low, imag_high64));
+                       
+                        // imaginary_part[i][k] += A[i][j] * D_T[k][j] + B[i][j] * C_T[k][j]; 
+                    }
+
+                    for(; j < this->columns; j++) {
                         real_part[i][k] += A[i][j] * C_T[k][j] - B[i][j] * D_T[k][j];
                         imaginary_part[i][k] += A[i][j] * D_T[k][j] + B[i][j] * C_T[k][j]; 
-
                     }
                 }
             }
