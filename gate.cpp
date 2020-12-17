@@ -1,5 +1,5 @@
 #include "gate.h"
-
+#include "string.h"
 bool Gate::checkUnitary(int num_qubits, Matrix gate)
 {
     Matrix result = gate * !gate.transpose();
@@ -211,7 +211,36 @@ Gate U(double theta, double phi, double lambda)
     matrix[0][1] = -Lambda * Sin;
     matrix[1][0] = Phi * Sin;
     matrix[1][1] = Phi * Lambda * Cos;
-    return Gate(1, matrix, "u3");
+    std::string gate_code;
+    gate_code += "box {$U_{";
+    if (theta < 0)
+    {
+        gate_code += std::to_string(theta).substr(0, 5);
+    }
+    else
+    {
+        gate_code += std::to_string(theta).substr(0, 4);
+    }
+    gate_code += ",";
+    if (phi < 0)
+    {
+        gate_code += std::to_string(phi).substr(0, 5);
+    }
+    else
+    {
+        gate_code += std::to_string(phi).substr(0, 4);
+    }
+    gate_code += ",";
+    if (lambda < 0)
+    {
+        gate_code += std::to_string(lambda).substr(0, 5);
+    }
+    else
+    {
+        gate_code += std::to_string(lambda).substr(0, 4);
+    }
+    gate_code += "}$}";
+    return Gate(1, matrix, gate_code);
 }
 
 Gate Controlled(Gate gate)
@@ -237,7 +266,7 @@ Gate Controlled(Gate gate)
     m2.setVal(2, 3, m.getVal(0, 1));
     m2.setVal(3, 2, m.getVal(1, 0));
     m2.setVal(3, 3, m.getVal(1, 1));
-    return Gate(2, m2, "");
+    return Gate(2, m2, gate.getGateCode());
 }
 
 std::string Gate::getGateCode()

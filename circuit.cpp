@@ -107,7 +107,7 @@ void Circuit::add(Gate gate, int q0, int q1)
 		M += m1[i].tensorProduct(m2).tensorProduct(m3[i]);
 	}
 
-	//physical_gate_list.push_back({gate,{q0,q1}});
+	gate_list.push_back({gate, {q0, q1}});
 	qubits.applyGate(Gate(number_of_qubits, m0.tensorProduct(M).tensorProduct(m4)));
 }
 bool Circuit::inContact(int q0, int q1)
@@ -319,7 +319,7 @@ int Circuit::measure(int qubit)
 	}
 	std::vector<int> bit;
 	bit.push_back(qubit);
-	Gate g = Gate(1, "dmeter");
+	Gate g = Gate(1, "measure");
 	gate_list.push_back(std::pair<Gate, std::vector<int>>(g, bit));
 	if (random < prob_0)
 	{
@@ -358,20 +358,24 @@ void Circuit::drawCircuit()
 
 void Circuit::drawCircuit(std::string file_name)
 {
-	std::ofstream file(file_name + ".qasm");
-	for (int i = 0; i < number_of_qubits; i++)
-	{
-		file << "    qubit	q" << i << std::endl;
-	}
+	std::ofstream file(file_name + ".tex");
+	file << "\\documentclass{article}\n\\usepackage{yquant}\n\\usepackage{tikz}\n\\usepackage{braket}\n\\yquantset{register/default name=$\\ket{\\reg_{\\idx}}$}\n\\begin{document}\n\\begin{tikzpicture}\n    \\begin{yquant}\n";
+	file << "	qubit q[" << number_of_qubits << "];\n";
 	file << std::endl;
 	for (int i = 0; i < gate_list.size(); i++)
 	{
 		file << "    " << gate_list.at(i).first.getGateCode() << "	";
-		for (int j = 0; j < gate_list.at(i).second.size() - 1; j++)
+		for (int j = gate_list.at(i).second.size() - 1; j > 0; j--)
 		{
-			file << "q" << gate_list.at(i).second.at(j) << ",";
+			file << "q[" << gate_list.at(i).second.at(j) << "] | ";
 		}
-		file << "q" << gate_list.at(i).second.at(gate_list.at(i).second.size() - 1);
-		file << std::endl;
+		file << "q[" << gate_list.at(i).second.at(0) << "]";
+		file << ";" << std::endl;
+		if ((i+1) % 11 == 0)
+		{
+			file << "    \\end{yquant}\n\\end{tikzpicture}\n\\\\\n\\\\\n\n\\begin{tikzpicture}\n    \\begin{yquant}\n";
+			file << "	qubit q[" << number_of_qubits << "];\n";
+		}
 	}
+	file << "    \\end{yquant}\n\\end{tikzpicture}\n\\end{document}";
 }
