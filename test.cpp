@@ -9,6 +9,7 @@ int main()
     qc.apply(H(), {1});
     qc.apply(H(), {2});
     qc.apply(H(), {3});
+    std::cout << qc.gate_list.size();
     //qc.printStateVector();
     // measurement test
     std::cout<<"Starting measurement\n";
@@ -26,4 +27,5 @@ int main()
     std::cout<<"Measurement time: "<<duration.count()<<'\n';
     std::cout<<"After measurement\n";
     qc.printStateVector();
+    qc.drawCircuit();
 }

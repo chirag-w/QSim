@@ -28,15 +28,16 @@ The following functions are supported:
 class Circuit
 {
     Qubits qubits;
-    std::vector<std::pair<Gate,std::vector<int>>> gate_list;
-    std::vector<std::pair<Gate,std::vector<int>>> physical_gate_list;
-    int number_of_qubits,number_of_physical_qubits;
-    void add(Gate gate,int q0);
-    void add(Gate gate,int q0,int q1);
-    std::vector<int> swapTargets(int q0,int q1);
-    bool inContact(int q0,int q1);
-    void SWAP(int q0,int q1);
+    std::vector<std::pair<Gate, std::vector<int>>> physical_gate_list;
+    int number_of_qubits, number_of_physical_qubits;
+    void add(Gate gate, int q0);
+    void add(Gate gate, int q0, int q1);
+    std::vector<int> swapTargets(int q0, int q1);
+    bool inContact(int q0, int q1);
+    void SWAP(int q0, int q1);
+
 public:
+    std::vector<std::pair<Gate, std::vector<int>>> gate_list;
     Circuit() = default;
     //Circuit(std::vector<int> qubit_list);
     Circuit(int number_of_qubits);
@@ -45,13 +46,15 @@ public:
     int measure(int qubit);
     int getNumQubits();
     void drawCircuit();
+    void drawCircuit(std::string file_name);
     void apply(Gate gate, std::vector<int> qubits_list);
-    void apply(Gate gate,int q0);
-    void apply(Gate gate,int q0,int q1);
+    void apply(Gate gate, int q0);
+    void apply(Gate gate, int q0, int q1);
     void clear();
     std::vector<int> measureAll();
     void printStateVector();
-
+    void drawPhysicalCircuit(std::string file_name);
+    void drawPhysicalCircuit();
 };
 
 #endif

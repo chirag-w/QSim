@@ -13,21 +13,24 @@ The following functions are supported:
 
 class Gate {
     Matrix gate; 
-    int num_qubits; 
+    int num_qubits;
+    std::string gate_code;
+    friend class Qubits;
 
-    friend class Qubits; 
-    
     bool checkUnitary(int num_qubits, Matrix gate); 
 
     public: 
     Gate() = default;
-    Gate(int num_qubits); 
-    Gate(int num_qubits, Matrix gate);  
-    Gate(int num_qubits, std::vector<std::vector<Complex>> gate); 
+    Gate(int num_qubits);
+    Gate(int num_qubits, std::string gate_code);
+    Gate(int num_qubits, Matrix gate);
+    Gate(int num_qubits, Matrix gate, std::string gate_code);
+    Gate(int num_qubits, std::vector<std::vector<Complex>> gate);
     Matrix getMatrix();
     int getNumQubits(); 
-    void printGate(); 
-}; 
+    void printGate();
+    std::string getGateCode();
+};
 
 Gate H();
 Gate X();
