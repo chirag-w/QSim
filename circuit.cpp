@@ -371,10 +371,45 @@ void Circuit::drawCircuit(std::string file_name)
 		}
 		file << "q[" << gate_list.at(i).second.at(0) << "]";
 		file << ";" << std::endl;
-		if ((i+1) % 11 == 0)
+		if ((i + 1) % 11 == 0)
 		{
 			file << "    \\end{yquant}\n\\end{tikzpicture}\n\\\\\n\\\\\n\n\\begin{tikzpicture}\n    \\begin{yquant}\n";
 			file << "	qubit q[" << number_of_qubits << "];\n";
+		}
+	}
+	file << "    \\end{yquant}\n\\end{tikzpicture}\n\\end{document}";
+}
+
+void Circuit::drawPhysicalCircuit()
+{
+	drawPhysicalCircuit("circuit");
+}
+
+void Circuit::drawPhysicalCircuit(std::string file_name)
+{
+	std::ofstream file(file_name + ".tex");
+	file << "\\documentclass{article}\n\\usepackage{yquant}\n\\usepackage{tikz}\n\\usepackage{braket}\n\\yquantset{register/default name=$\\ket{\\reg_{\\idx}}$}\n\\begin{document}\n\\begin{tikzpicture}\n    \\begin{yquant}\n";
+	file << "	qubit q[" << number_of_physical_qubits << "];\n    qubit anc[2];\n";
+	file << std::endl;
+	for (int i = 0; i < physical_gate_list.size(); i++)
+	{
+		file << "    " << physical_gate_list.at(i).first.getGateCode() << "	";
+		for (int j = physical_gate_list.at(i).second.size() - 1; j > 0; j--)
+		{
+			if (physical_gate_list.at(i).second.at(j) < 10)
+				file << "q[" << physical_gate_list.at(i).second.at(j) << "] | ";
+			else
+				file << "anc[" << physical_gate_list.at(i).second.at(j) - 10 << "] | ";
+		}
+		if (physical_gate_list.at(i).second.at(0) < 10)
+			file << "q[" << physical_gate_list.at(i).second.at(0) << "]";
+		else
+			file << "anc[" << physical_gate_list.at(i).second.at(0) - 10 << "]";
+		file << ";" << std::endl;
+		if ((i + 1) % 11 == 0)
+		{
+			file << "    \\end{yquant}\n\\end{tikzpicture}\n\\\\\n\\\\\n\n\\begin{tikzpicture}\n    \\begin{yquant}\n";
+			file << "	qubit q[" << number_of_physical_qubits << "];\n    qubit anc[2];\n";
 		}
 	}
 	file << "    \\end{yquant}\n\\end{tikzpicture}\n\\end{document}";
