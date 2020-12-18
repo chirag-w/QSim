@@ -1,7 +1,5 @@
 #ifdef __AVX__ 
     #include <immintrin.h>
-#else
-    #warning AVX is not available. Code will not compile properly
 #endif
 #include "matrix.h"
 #include<thread>
@@ -168,6 +166,7 @@ Matrix Matrix::operator * (Matrix other) {
         int THREADS = 4;
         int SIZE = this->rows;
 
+    #ifdef __AVX__
         auto multiply = [this, other, C_T, D_T, A, B](int start, int end, std::vector<std::vector<double>> &real_part,  std::vector<std::vector<double>> &imaginary_part) {
             for(int i=start; i<end; i++) {
                 for(int k = 0; k < other.columns; k++) {
@@ -186,16 +185,12 @@ Matrix Matrix::operator * (Matrix other) {
                         to_add_real_low  = _mm_add_pd(to_add_real_low, to_add_real_high);    
                         __m128d real_high64 = _mm_unpackhi_pd(to_add_real_low, to_add_real_low);
                         real_part[i][k] +=  _mm_cvtsd_f64(_mm_add_sd(to_add_real_low, real_high64));
-                         
-                        // real_part[i][k] += A[i][j] * C_T[k][j] - B[i][j] * D_T[k][j];
 
                         __m128d to_add_imag_low  = _mm256_castpd256_pd128(to_add_imag);
                         __m128d to_add_imag_high = _mm256_extractf128_pd(to_add_imag, 1); 
                         to_add_imag_low  = _mm_add_pd(to_add_imag_low, to_add_imag_high);    
                         __m128d imag_high64 = _mm_unpackhi_pd(to_add_imag_low, to_add_imag_low);
                         imaginary_part[i][k] +=  _mm_cvtsd_f64(_mm_add_sd(to_add_imag_low, imag_high64));
-                       
-                        // imaginary_part[i][k] += A[i][j] * D_T[k][j] + B[i][j] * C_T[k][j]; 
                     }
 
                     for(; j < this->columns; j++) {
@@ -206,6 +201,21 @@ Matrix Matrix::operator * (Matrix other) {
             }
         };
 
+    #else
+        auto multiply = [this, other, C_T, D_T, A, B](int start, int end, std::vector<std::vector<double>> &real_part,  std::vector<std::vector<double>> &imaginary_part) {
+            for(int i=start; i<end; i++) {
+                for(int k = 0; k < other.columns; k++) {
+                    #pragma omp simd
+                    for(int j = 0; j < this->columns; j++) {
+                        real_part[i][k] += A[i][j] * C_T[k][j] - B[i][j] * D_T[k][j];
+                        imaginary_part[i][k] += A[i][j] * D_T[k][j] + B[i][j] * C_T[k][j]; 
+
+                    }
+                }
+            }
+        };
+        #endif
+
         std::thread threads[THREADS+1];
         for(int i=0; i<THREADS; ++i){
             threads[i] = std::thread(multiply, i*(SIZE/THREADS), (i+1)*(SIZE/THREADS), std::ref(real_part), std::ref(imaginary_part));
@@ -215,37 +225,12 @@ Matrix Matrix::operator * (Matrix other) {
             threads[i].join();
         }
 
-
-
-
-
-
-        // for(int i = 0; i < this->rows; i++) {
-        //     for(int k = 0; k < other.columns; k++) {
-        //         #pragma omp simd
-        //         for(int j = 0; j < this->columns; j++) {
-        //             real_part[i][k] += A[i][j] * C_T[k][j] - B[i][j] * D_T[k][j];
-        //             imaginary_part[i][k] += A[i][j] * D_T[k][j] + B[i][j] * C_T[k][j];  
-        //         }
-        //     }
-        // }
-        
-
         Matrix result = *(new Matrix(this->rows, other.columns)); 
         for(int i = 0; i < this->rows; i++) {
             for(int j = 0; j < other.columns; j++) {
                 result.matrix.at(i).at(j) = Complex(real_part[i][j], imaginary_part[i][j]); 
             }
         }
-        // for(int i = 0; i < this->rows; i++) {
-        //     for(int k = 0; k < other.columns; k++) {
-        //         #pragma omp simd
-        //         for(int j = 0; j < this->columns; j++) {
-        //             result.matrix.at(i).at(k) += this->matrix.at(i).at(j) * other.matrix.at(j).at(k); 
-        //         }
-        //     }
-        // }
-
         return result; 
     }
     catch(int code) {
