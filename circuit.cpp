@@ -4,6 +4,7 @@
 #include <vector>
 #include <random>
 #include <chrono>
+#include <fstream>
 std::mt19937_64 rang(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 double rng()
 {
@@ -22,12 +23,13 @@ Circuit::Circuit(int number_of_qubits)
 {
 	srand(time(0));
 	number_of_physical_qubits = number_of_qubits;
-	if(number_of_qubits>3)
+	if (number_of_qubits > 3)
 		number_of_physical_qubits++;
-	if(number_of_qubits>7)
+	if (number_of_qubits > 7)
 		number_of_physical_qubits++;
-	if(number_of_qubits > 10){
-		std::cerr<<"At most 10 qubits allowed\n";
+	if (number_of_qubits > 10)
+	{
+		std::cerr << "At most 10 qubits allowed\n";
 		exit(1);
 	}
 	std::vector<int> qubits;
@@ -105,52 +107,74 @@ void Circuit::add(Gate gate, int q0, int q1)
 		M += m1[i].tensorProduct(m2).tensorProduct(m3[i]);
 	}
 
-	//physical_gate_list.push_back({gate,{q0,q1}});
-	qubits.applyGate(Gate (number_of_qubits,m0.tensorProduct(M).tensorProduct(m4)));
+	gate_list.push_back({gate, {q0, q1}});
+	qubits.applyGate(Gate(number_of_qubits, m0.tensorProduct(M).tensorProduct(m4)));
 }
-bool Circuit::inContact(int q0,int q1){
-switch(q0){
-		case 0: return (q1 == 1 || q1 == 2 || q1 == 10);
-		case 1: return (q1 == 0 || q1 == 2 || q1 == 3 || q1 == 4 || q1 == 10);
-		case 2: return (q1 == 0 || q1 == 1 || q1 == 5 || q1 == 10 || q1 == 11);
-		case 3: return (q1 == 1 || q1 == 4 || q1 == 10);
-		case 4: return (q1 == 1 || q1 == 3 || q1 == 6 || q1 ==10 || q1 == 11);
-		case 5: return (q1 == 2 || q1 == 7 || q1 == 8 || q1 == 10 || q1 == 11);
-		case 6: return (q1 == 4 || q1 == 8 || q1 == 9 || q1 == 10 || q1 == 11);
-		case 7: return (q1 == 5 || q1 == 8 || q1 == 11);
-		case 8: return (q1 == 5 || q1 == 6 || q1 == 7 || q1 == 9 || q1 == 11);
-		case 9: return (q1 == 6 || q1 == 8 || q1 == 11);
-		default : return false;
+bool Circuit::inContact(int q0, int q1)
+{
+	switch (q0)
+	{
+	case 0:
+		return (q1 == 1 || q1 == 2 || q1 == 10);
+	case 1:
+		return (q1 == 0 || q1 == 2 || q1 == 3 || q1 == 4 || q1 == 10);
+	case 2:
+		return (q1 == 0 || q1 == 1 || q1 == 5 || q1 == 10 || q1 == 11);
+	case 3:
+		return (q1 == 1 || q1 == 4 || q1 == 10);
+	case 4:
+		return (q1 == 1 || q1 == 3 || q1 == 6 || q1 == 10 || q1 == 11);
+	case 5:
+		return (q1 == 2 || q1 == 7 || q1 == 8 || q1 == 10 || q1 == 11);
+	case 6:
+		return (q1 == 4 || q1 == 8 || q1 == 9 || q1 == 10 || q1 == 11);
+	case 7:
+		return (q1 == 5 || q1 == 8 || q1 == 11);
+	case 8:
+		return (q1 == 5 || q1 == 6 || q1 == 7 || q1 == 9 || q1 == 11);
+	case 9:
+		return (q1 == 6 || q1 == 8 || q1 == 11);
+	default:
+		return false;
 	}
 }
-std::vector<int> Circuit::swapTargets(int q0,int q1){
+std::vector<int> Circuit::swapTargets(int q0, int q1)
+{
 	std::vector<int> swapTo;
-	if(inContact(q0,q1));
-	else if(inContact(q0,10)&&inContact(q1,10)){
+	if (inContact(q0, q1))
+		;
+	else if (inContact(q0, 10) && inContact(q1, 10))
+	{
 		swapTo.push_back(10);
 	}
-	else if(inContact(q0,11)&&inContact(q1,11)){
+	else if (inContact(q0, 11) && inContact(q1, 11))
+	{
 		swapTo.push_back(11);
 	}
-	else if(inContact(q0,10)&&inContact(q1,11)){
+	else if (inContact(q0, 10) && inContact(q1, 11))
+	{
 		swapTo.push_back(10);
 		swapTo.push_back(11);
 	}
-	else{
+	else
+	{
 		swapTo.push_back(11);
 		swapTo.push_back(10);
 	}
 	return swapTo;
 }
-void Circuit::SWAP(int q0,int q1){
+void Circuit::SWAP(int q0, int q1)
+{
 	//std::cout<<"SWAPPED "<<q0<<" "<<q1<<'\n';
-	physical_gate_list.push_back({CX(),{q0,q1}});
-	physical_gate_list.push_back({CX(),{q1,q0}});
-	physical_gate_list.push_back({CX(),{q0,q1}});
+	physical_gate_list.push_back({CX(), {q0, q1}});
+	physical_gate_list.push_back({CX(), {q1, q0}});
+	physical_gate_list.push_back({CX(), {q0, q1}});
 }
-void Circuit::apply(Gate gate,std::vector<int> qubits_list){
-	if(qubits_list.size()!=gate.getNumQubits()){
-		std::cerr<<"Gate not compatible with qubit list\n";
+void Circuit::apply(Gate gate, std::vector<int> qubits_list)
+{
+	if (qubits_list.size() != gate.getNumQubits())
+	{
+		std::cerr << "Gate not compatible with qubit list\n";
 		return;
 	}
 	gate_list.push_back({gate, qubits_list});
@@ -158,93 +182,103 @@ void Circuit::apply(Gate gate,std::vector<int> qubits_list){
 	{
 		add(gate, qubits_list[0]);
 	}
-	else {
-		int q0 = qubits_list[0],q1 = qubits_list[1];
-		std::vector<int> swapTo = swapTargets(q0,q1);
-		if(swapTo.size()==1){
-			SWAP(q0,swapTo[0]);
-			physical_gate_list.push_back({gate,{swapTo[0],q1}});
+	else
+	{
+		int q0 = qubits_list[0], q1 = qubits_list[1];
+		std::vector<int> swapTo = swapTargets(q0, q1);
+		if (swapTo.size() == 1)
+		{
+			SWAP(q0, swapTo[0]);
+			physical_gate_list.push_back({gate, {swapTo[0], q1}});
 			/*
 			std::cout<<"Applied \n";
 			gate.printGate();
 			std::cout<<"To "<<swapTo[0]<<' '<<q1<<'\n';
 			*/
-			SWAP(q0,swapTo[0]);
+			SWAP(q0, swapTo[0]);
 		}
-		else if(swapTo.size()==2){
-			SWAP(q0,swapTo[0]);
-			SWAP(q1,swapTo[1]);
-			physical_gate_list.push_back({gate,{swapTo[0],swapTo[1]}});
+		else if (swapTo.size() == 2)
+		{
+			SWAP(q0, swapTo[0]);
+			SWAP(q1, swapTo[1]);
+			physical_gate_list.push_back({gate, {swapTo[0], swapTo[1]}});
 			/*
 			std::cout<<"Applied \n";
 			gate.printGate();
 			std::cout<<"To "<<swapTo[0]<<' '<<swapTo[1]<<'\n';
 			*/
-			SWAP(q1,swapTo[1]);
-			SWAP(q0,swapTo[0]);
+			SWAP(q1, swapTo[1]);
+			SWAP(q0, swapTo[0]);
 		}
-		else{
-			physical_gate_list.push_back({gate,{q0,q1}});
+		else
+		{
+			physical_gate_list.push_back({gate, {q0, q1}});
 			/*
 			std::cout<<"Applied \n";
 			gate.printGate();
 			std::cout<<"To "<<q0<<' '<<q1<<'\n';
 			*/
 		}
-		add(gate,q0,q1);
+		add(gate, q0, q1);
 	}
-
 }
-void Circuit::apply(Gate gate,int q0){
-	if(gate.getNumQubits()!=1){
-		std::cerr<<"Not a 1-qubit gate\n";
+void Circuit::apply(Gate gate, int q0)
+{
+	if (gate.getNumQubits() != 1)
+	{
+		std::cerr << "Not a 1-qubit gate\n";
 		return;
 	}
-	std::vector<int> qubits_list(1,q0);
-	gate_list.push_back({gate,qubits_list});
-	add(gate,q0);
+	std::vector<int> qubits_list(1, q0);
+	gate_list.push_back({gate, qubits_list});
+	add(gate, q0);
 }
-void Circuit::apply(Gate gate,int q0,int q1){
+void Circuit::apply(Gate gate, int q0, int q1)
+{
 	std::vector<int> qubits_list(2);
-	qubits_list[0] = q0,qubits_list[1] = q1;
-	std::vector<int> swapTo = swapTargets(q0,q1);
-	if(swapTo.size()==1){
-		SWAP(q0,swapTo[0]);
-		physical_gate_list.push_back({gate,{swapTo[0],q1}});
+	qubits_list[0] = q0, qubits_list[1] = q1;
+	std::vector<int> swapTo = swapTargets(q0, q1);
+	if (swapTo.size() == 1)
+	{
+		SWAP(q0, swapTo[0]);
+		physical_gate_list.push_back({gate, {swapTo[0], q1}});
 		/*
 		std::cout<<"Applied \n";
 		gate.printGate();
 		std::cout<<"To "<<swapTo[0]<<' '<<q1<<'\n';
 		*/
-		SWAP(q0,swapTo[0]);
+		SWAP(q0, swapTo[0]);
 	}
-	else if(swapTo.size()==2){
-		SWAP(q0,swapTo[0]);
-		SWAP(q1,swapTo[1]);
-		physical_gate_list.push_back({gate,{swapTo[0],swapTo[1]}});
+	else if (swapTo.size() == 2)
+	{
+		SWAP(q0, swapTo[0]);
+		SWAP(q1, swapTo[1]);
+		physical_gate_list.push_back({gate, {swapTo[0], swapTo[1]}});
 		/*
 		std::cout<<"Applied \n";
 		gate.printGate();
 		std::cout<<"To "<<swapTo[0]<<' '<<swapTo[1]<<'\n';
 		*/
-		SWAP(q1,swapTo[1]);
-		SWAP(q0,swapTo[0]);
+		SWAP(q1, swapTo[1]);
+		SWAP(q0, swapTo[0]);
 	}
-	else{
-		physical_gate_list.push_back({gate,{q0,q1}});
+	else
+	{
+		physical_gate_list.push_back({gate, {q0, q1}});
 		/*
 		std::cout<<"Applied \n";
 		gate.printGate();
 		std::cout<<"To "<<q0<<' '<<q1<<'\n';
 		*/
 	}
-	add(gate,q0,q1);
+	add(gate, q0, q1);
 }
 void Circuit::printStateVector()
 {
 	qubits.printState();
 }
-int Circuit::getNumQubits(){
+int Circuit::getNumQubits()
+{
 	return number_of_qubits;
 }
 int Circuit::measure(int qubit)
@@ -262,7 +296,7 @@ int Circuit::measure(int qubit)
 	{
 		if (random < prob_0)
 		{
-			if (((j >> (qubits.num_qubits-qubit-1)) & 1) == 0)
+			if (((j >> (qubits.num_qubits - qubit - 1)) & 1) == 0)
 			{
 				qubits.state.setVal(j, 0, qubits.state.getVal(j, 0) / *(new Complex(sqrt(prob_0))));
 			}
@@ -273,7 +307,7 @@ int Circuit::measure(int qubit)
 		}
 		else
 		{
-			if (((j >> (qubits.num_qubits - qubit-1)) & 1) == 1)
+			if (((j >> (qubits.num_qubits - qubit - 1)) & 1) == 1)
 			{
 				qubits.state.setVal(j, 0, qubits.state.getVal(j, 0) / *(new Complex(sqrt(1 - prob_0))));
 			}
@@ -283,7 +317,10 @@ int Circuit::measure(int qubit)
 			}
 		}
 	}
-
+	std::vector<int> bit;
+	bit.push_back(qubit);
+	Gate g = Gate(1, "measure");
+	gate_list.push_back(std::pair<Gate, std::vector<int>>(g, bit));
 	if (random < prob_0)
 	{
 		return 0;
@@ -312,4 +349,68 @@ std::vector<int> Circuit::measureAll()
 		qubits_list.push_back(i);
 	}
 	return measure(qubits_list);
+}
+
+void Circuit::drawCircuit()
+{
+	drawCircuit("circuit");
+}
+
+void Circuit::drawCircuit(std::string file_name)
+{
+	std::ofstream file(file_name + ".tex");
+	file << "\\documentclass{article}\n\\usepackage{yquant}\n\\usepackage{tikz}\n\\usepackage{braket}\n\\yquantset{register/default name=$\\ket{\\reg_{\\idx}}$}\n\\begin{document}\n\\begin{tikzpicture}\n    \\begin{yquant}\n";
+	file << "	qubit q[" << number_of_qubits << "];\n";
+	file << std::endl;
+	for (int i = 0; i < gate_list.size(); i++)
+	{
+		file << "    " << gate_list.at(i).first.getGateCode() << "	";
+		for (int j = gate_list.at(i).second.size() - 1; j > 0; j--)
+		{
+			file << "q[" << gate_list.at(i).second.at(j) << "] | ";
+		}
+		file << "q[" << gate_list.at(i).second.at(0) << "]";
+		file << ";" << std::endl;
+		if ((i + 1) % 11 == 0)
+		{
+			file << "    \\end{yquant}\n\\end{tikzpicture}\n\\\\\n\\\\\n\n\\begin{tikzpicture}\n    \\begin{yquant}\n";
+			file << "	qubit q[" << number_of_qubits << "];\n";
+		}
+	}
+	file << "    \\end{yquant}\n\\end{tikzpicture}\n\\end{document}";
+}
+
+void Circuit::drawPhysicalCircuit()
+{
+	drawPhysicalCircuit("circuit");
+}
+
+void Circuit::drawPhysicalCircuit(std::string file_name)
+{
+	std::ofstream file(file_name + ".tex");
+	file << "\\documentclass{article}\n\\usepackage{yquant}\n\\usepackage{tikz}\n\\usepackage{braket}\n\\yquantset{register/default name=$\\ket{\\reg_{\\idx}}$}\n\\begin{document}\n\\begin{tikzpicture}\n    \\begin{yquant}\n";
+	file << "	qubit q[" << number_of_physical_qubits << "];\n    qubit anc[2];\n";
+	file << std::endl;
+	for (int i = 0; i < physical_gate_list.size(); i++)
+	{
+		file << "    " << physical_gate_list.at(i).first.getGateCode() << "	";
+		for (int j = physical_gate_list.at(i).second.size() - 1; j > 0; j--)
+		{
+			if (physical_gate_list.at(i).second.at(j) < 10)
+				file << "q[" << physical_gate_list.at(i).second.at(j) << "] | ";
+			else
+				file << "anc[" << physical_gate_list.at(i).second.at(j) - 10 << "] | ";
+		}
+		if (physical_gate_list.at(i).second.at(0) < 10)
+			file << "q[" << physical_gate_list.at(i).second.at(0) << "]";
+		else
+			file << "anc[" << physical_gate_list.at(i).second.at(0) - 10 << "]";
+		file << ";" << std::endl;
+		if ((i + 1) % 11 == 0)
+		{
+			file << "    \\end{yquant}\n\\end{tikzpicture}\n\\\\\n\\\\\n\n\\begin{tikzpicture}\n    \\begin{yquant}\n";
+			file << "	qubit q[" << number_of_physical_qubits << "];\n    qubit anc[2];\n";
+		}
+	}
+	file << "    \\end{yquant}\n\\end{tikzpicture}\n\\end{document}";
 }
