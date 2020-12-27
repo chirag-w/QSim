@@ -19,6 +19,9 @@ The project contains the necessary header files for the library along with some 
 - Measure all qubits in the circuit.
 
 ### Compilation instructions:
+
+- To compile "filename.cpp": The file should either be in the same directory as the source code, or the include path for the source code should be specified .
+
 - Let's say we want to compile a file "EPR.cpp". Run the following command:
     - In Linux:
 
